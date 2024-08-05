@@ -1,4 +1,5 @@
 #include "CDynamicBitset.h"
+#include <iomanip>
 
 CDynamicBitset::CDynamicBitset() : data({0})
 {
@@ -417,8 +418,10 @@ CDynamicBitset& CDynamicBitset::operator^=(const CDynamicBitset& dbs)
 
 std::ostream& operator << (std::ostream& os, const CDynamicBitset dbs)
 {
+	os << std::hex;
 	for (const ull& item : dbs.getData())
-		os << std::bitset<CDynamicBitset::bitsInUll>(item);
+	//	os << std::bitset<CDynamicBitset::bitsInUll>(item);
+		os << std::setfill('0') << std::setw(16) << item;
 	return os;
 }
 

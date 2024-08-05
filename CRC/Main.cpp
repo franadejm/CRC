@@ -1,7 +1,6 @@
 #include <iostream>
 #include "CRC.h"
 #include <assert.h>
-#include <bitset>
 
 using uint = unsigned int;
 
@@ -77,6 +76,19 @@ void test()
 
 }
 
+bool getUserAnswer(const char* prompt)
+{
+	char c = 0;
+	do
+	{
+		std::cout << prompt;
+		std::cin >> c;
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	} while (c != 'y' && c != 'n');
+
+	return (c == 'y');
+}
+
 void interface()
 {
 	std::cout << "Enter message to send: ";
@@ -85,12 +97,36 @@ void interface()
 	CRC a(mes);
 	std::cout << "    [LOG] Encoding message" << std::endl;
 	a.encode();
-	std::cout << "Enter number of transmission errors: ";
-	int err;
-	std::cin >> err;
+	
+	if (getUserAnswer("Do you want to see the encoded message? (y/n): "))
+		std::cout << "Encoded message: "  << a << std::endl;
+
+	unsigned int err;
+	while (true)
+	{
+		std::cout << "Enter number of transmission errors: ";
+		std::cin >> err;
+
+		if (std::cin.fail())
+		{
+			std::cin.clear();
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		}
+		else
+		{
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			break;
+		}
+	}
+
 	std::cout << "    [LOG] Simulating errors" << std::endl;
 	a.createErrors(err);
+
+	if (getUserAnswer("Do you want to see the damaged encoded message? (y/n): "))
+			std::cout << "Damaged message: " << a << std::endl;
+
 	std::cout << "    [LOG] Decoding" << std::endl;
+
 	try
 	{
 		a.decode();

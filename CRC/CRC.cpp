@@ -45,10 +45,12 @@ CRC& CRC::encode(const cbp& generator)
 
 CRC& CRC::decode(const cbp& generator)
 {
+	
 	if (!isValid(generator))
 		throw std::invalid_argument("    [LOG] Errors detected");
 
 	message /= (1 << (generator.degree()));
+
 	return *this;
 }
 
@@ -56,12 +58,16 @@ void CRC::createErrors(unsigned int numOfErrors)
 {
 	std::random_device dev;
 	std::mt19937 rng(dev());
-	std::uniform_int_distribution<std::mt19937::result_type> dist(0, message.getCoefficients().size()-1);
+	std::uniform_int_distribution<unsigned int> dist(0, message.getCoefficients().size()-1);
 
 	for (unsigned int i = 0; i < numOfErrors; i++)
 	{
-		cbp noise = cbp::xToThe(dist(rng));
+		int rn = dist(rng);
+		//std::cout << std::dec << rn << std::endl;
+		cbp noise = cbp::xToThe(rn);
+		//std::cout << message << std::endl << noise << std::endl << "--------------------------------------------------------------------" << std::endl;
 		message += noise;
+		//std::cout << message << std::endl << std::endl;
 	}
 }
 
