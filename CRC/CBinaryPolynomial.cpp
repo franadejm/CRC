@@ -88,14 +88,8 @@ CBinaryPolynomial CBinaryPolynomial::operator*(const CBinaryPolynomial& cbp) con
 	{
 		if (coefficients.at(idx))
 		{
-			CBinaryPolynomial tmp = (cbp.coefficients << idx);
-	//		std::cout << "  " << cbp.coefficients << "<< " << idx << std::endl << "= " << tmp << std::endl << std::endl;
-	//		std::cout << "  " << res << std::endl << " +" << tmp << std::endl << "  ";
-	//		for (int i = 0; i < 64; i++)
-	//			std::cout << "-";
-			
+			CBinaryPolynomial tmp = (cbp.coefficients << idx);			
 			res += tmp;
-	//		std::cout << std::endl << "  " << res << std::endl << std::endl;
 		}
 	}
 	return res;
