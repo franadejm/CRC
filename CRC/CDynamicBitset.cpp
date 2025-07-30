@@ -17,7 +17,9 @@ CDynamicBitset::CDynamicBitset(std::string& s)
 {
 	ull charsToCopy = s.size();
 	ull charsInUll = sizeof(ull) / sizeof(char);
-	ull requiredVectorSize = (charsToCopy + charsInUll - 1) / charsInUll;  // (a + b - 1) / b == ceil(a / b)
+	
+	// (a + b - 1) / b == ceil(a / b)
+	ull requiredVectorSize = (charsToCopy + charsInUll - 1) / charsInUll;  
 
 	data.resize(requiredVectorSize, 0);
 	std::memcpy(data.data(), s.data(), charsToCopy);
@@ -155,7 +157,8 @@ int CDynamicBitset::HammingWeight() const
 
 std::string CDynamicBitset::dump() const
 {
-	size_t bytes = data.size() * sizeof(ull); // # ull to dump * bytes in ull
+	// # ull to dump * bytes in ull
+	size_t bytes = data.size() * sizeof(ull); 
 	char* tmp = new char[bytes+1];
 	std::memcpy((void*)tmp, (const void*)getData().data(), bytes);
 	tmp[bytes] = 0;
@@ -181,12 +184,12 @@ bool CDynamicBitset::operator==(const CDynamicBitset& dbs) const { return (data 
 
 /*
 
->> general idea:
+general idea of >> operator:
 	
 	vector<ull> data = { first, second, ... , secondLast, last }
 
-	if plny underflows 
-		smazat nekolik poslednich prvku
+	if some ulls fully underflow 
+		erase several elements from the end
 	
 	last  >>= shift
 
@@ -198,18 +201,18 @@ bool CDynamicBitset::operator==(const CDynamicBitset& dbs) const { return (data 
 	second += first underflow
 	first >>= shift
 
-	vymaz leading zeros
+	erase leading zeros
 
 
-<< general idea:
+general idea << operator:
 
 	vector<ull> data = { first, second, ... , secondLast, last }
 	
-	if plny overflows
-		vloz na konec nekolik prvku
+	if some ulls fully overflow
+		insert elements at the end
 
-	if (first underflow)
-		vloz na zacatek first underflow
+	if (first underflows)
+		insert first underflow
 	
 	first <<= shift
 
@@ -293,7 +296,7 @@ CDynamicBitset CDynamicBitset::operator << (const ull shft) const
 			if (it == res.data.begin())
 			{														
 				res.data.insert(res.data.begin(), overflow);   // { first, ... } -> { overflow, first, ... } , it undefined
-				it = res.data.begin() + 1;					   //						      it -^
+				it = res.data.begin() + 1;//						      it -^
 			}
 			else *(it - 1) += overflow;   // { ...., *(it - 1), *it, ... } -> { ..., *(it -1) + overflow, *it ... } 
 		}
@@ -334,9 +337,9 @@ CDynamicBitset CDynamicBitset::operator & (const CDynamicBitset& dbs) const
 
 	auto it2 = other->data.rbegin();
 	for (auto it = res.data.rbegin(); it != res.data.rend() && it2 != other->data.rend(); it++, it2++)
-	{																									// res = { item01, item02, item03, item04 }
-		*it &= *it2;																				  //*other =                 { item05, item06 }
-	}							   													                    // res = { item01, item02, item03 & item05, item04 & item06 }
+	{				// res = { item01, item02, item03, item04 }
+		*it &= *it2;	        //*other =               { item05, item06 }
+	}				// res = { item01, item02, item03 & item05, item04 & item06 }
 
 	res.deleteLeadingZeros();
 
@@ -363,9 +366,9 @@ CDynamicBitset CDynamicBitset::operator | (const CDynamicBitset& dbs) const
 
 	auto it2 = other->data.rbegin();
 	for (auto it = res.data.rbegin(); it != res.data.rend() && it2 != other->data.rend(); it++, it2++)
-	{																									// res = { item01, item02, item03, item04 }
-		*it |= *it2;																				  //*other =                 { item05, item06 }
-	}							   													                    // res = { item01, item02, item03 | item05, item04 | item06 }
+	{				// res = { item01, item02, item03, item04 }
+		*it |= *it2;		//*other =               { item05, item06 }
+	}				// res = { item01, item02, item03 | item05, item04 | item06 }
 
 	return res;
 }
@@ -389,9 +392,9 @@ CDynamicBitset CDynamicBitset::operator^(const CDynamicBitset& dbs) const
 	
 	auto it2 = other->data.rbegin();
 	for (auto it = res.data.rbegin(); it != res.data.rend() && it2 != other->data.rend(); it++, it2++)
-	{																									// res = { item01, item02, item03, item04 }
-		*it ^= *it2;																				  //*other =                 { item05, item06 }
-	}							   													                    // res = { item01, item02, item03 ^ item05, item04 ^ item06 }
+	{			         // res = { item01, item02, item03, item04 }
+		*it ^= *it2;		 //*other =               { item05, item06 }
+	}				 // res = { item01, item02, item03 ^ item05, item04 ^ item06 }
 
 	res.deleteLeadingZeros();
 	return res;
@@ -420,7 +423,6 @@ std::ostream& operator << (std::ostream& os, const CDynamicBitset dbs)
 {
 	os << std::hex;
 	for (const ull& item : dbs.getData())
-	//	os << std::bitset<CDynamicBitset::bitsInUll>(item);
 		os << std::setfill('0') << std::setw(16) << item;
 	return os;
 }
