@@ -36,24 +36,26 @@ std::ostream& operator<<(std::ostream& os, CRC& crc)
 
 CRC& CRC::encode(const cbp& generator)
 {
-	message *= cbp::xToThe(generator.degree()); // multiply by x^(highest possible degree of remainder)
-//	std::cout << message << std::endl;
-	message += (message % generator);		// add remainder after division by generator
-//	std::cout << message << std::endl << std::endl;
+	// multiply by x^(highest possible degree of remainder)
+	message *= cbp::xToThe(generator.degree()); 
+	// add remainder after division by generator
+	message += (message % generator);		
 	return *this;
 }
 
 CRC& CRC::decode(const cbp& generator)
 {
-	
+	// check if the message has errors
 	if (!isValid(generator))
 		throw std::invalid_argument("    [LOG] Errors detected");
 
+	// remove redundant bits
 	message /= (1 << (generator.degree()));
 
 	return *this;
 }
 
+// for testing purposes
 void CRC::createErrors(unsigned int numOfErrors)
 {
 	std::random_device dev;
@@ -63,11 +65,11 @@ void CRC::createErrors(unsigned int numOfErrors)
 	for (unsigned int i = 0; i < numOfErrors; i++)
 	{
 		int rn = dist(rng);
-		//std::cout << std::dec << rn << std::endl;
+		
+	        // create a random noise polynomial
 		cbp noise = cbp::xToThe(rn);
-		//std::cout << message << std::endl << noise << std::endl << "--------------------------------------------------------------------" << std::endl;
+		// add noise
 		message += noise;
-		//std::cout << message << std::endl << std::endl;
 	}
 }
 
@@ -76,6 +78,14 @@ std::string CRC::read() const
 	return std::move(message.getCoefficients().dump());
 }
 
+// validates if message has no errors
+bool CRC::isValid(const cbp& generator) const
+{
+	return (message % generator) == 0;
+}
+
+
+// some frequently used generator polynomials
 cbp CRC::CRC_8()
 {
 	return 0x107;
@@ -94,11 +104,6 @@ cbp CRC::CRC_32C()
 cbp CRC::CRC_64_ISO()
 {
 	return ((ull)1 << 63) + 0x1b;
-}
-
-bool CRC::isValid(const cbp& generator) const
-{
-	return (message % generator) == 0;
 }
 
 
